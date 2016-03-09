@@ -1,4 +1,9 @@
 <script src="https://cdn.firebase.com/js/client/2.4.1/firebase.js"></script>
+
 <script>
-      var myFirebaseRef = new Firebase("https://expenditator.firebaseio.com/expenses");
+    var myFirebaseRef = new Firebase("https://expenditator.firebaseio.com/expenses");
+
+	myFirebaseRef.on('value', function(snapshot){ 
+		document.write("<pre>" + JSON.stringify(snapshot.val()) + "</pre>");
+	});
 </script>
