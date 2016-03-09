@@ -1,9 +1,34 @@
-<script src="https://cdn.firebase.com/js/client/2.4.1/firebase.js"></script>
+<html>
+<head>
+	<title>Expendidator</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/lodash/4.6.1/lodash.min.js"></script>
+	<script src="https://cdn.firebase.com/js/client/2.4.1/firebase.js"></script>
+</head>
+<body>
 
-<script>
-    var myFirebaseRef = new Firebase("https://expenditator.firebaseio.com/expenses");
+	<h1>Expendidator</h1>
+	<table id="list"></table>
 
-	myFirebaseRef.on('value', function(snapshot){ 
-		document.write("<pre>" + JSON.stringify(snapshot.val()) + "</pre>");
-	});
-</script>
+	<script>
+	  var myFirebaseRef = new Firebase("https://expenditator.firebaseio.com/expenses");
+	  
+	  function renderRow(expense) {
+	  	return `<tr><td>${expense.amount}</td><td>${expense.name}</td></tr>`;
+	  }
+
+	  function renderRows(expenses) {
+	  	return _.map(expenses, renderRow);
+	  }
+
+	  myFirebaseRef.on('value', function(snap) {
+	  	$('#list').html( renderRows( snap.val() ) );
+	  });
+
+	</script>
+
+
+</body>
+</html>
+
+
