@@ -4,29 +4,108 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/lodash/4.6.1/lodash.min.js"></script>
 	<script src="https://cdn.firebase.com/js/client/2.4.1/firebase.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.css">
 </head>
 <body>
 
-	<h1>Expendidator</h1>
-	<table id="list"></table>
+	<div class="ui main container">
 
-	<script>
-	  var myFirebaseRef = new Firebase("https://expenditator.firebaseio.com/expenses");
-	  
-	  function renderRow(expense) {
-	  	return `<tr><td>${expense.amount}</td><td>${expense.name}</td></tr>`;
-	  }
+		<h1>Expendidator</h1>
 
-	  function renderRows(expenses) {
-	  	return _.map(expenses, renderRow);
-	  }
+		<script>
+			var myFirebaseRef = new Firebase("https://expenditator.firebaseio.com/expenses");
+		</script>
 
-	  myFirebaseRef.on('value', function(snap) {
-	  	$('#list').html( renderRows( snap.val() ) );
-	  });
+	<!-- 	<h2>Events</h2>
+		<script>
+			myFirebaseRef.on('value', function(snapshot){ 
+				document.write("<pre>" + JSON.stringify(snapshot.val()) + "</pre>");
+			});
+		</script>
+	 -->	  
 
-	</script>
+		<div class="ui segment">
+			
+			<form onSubmit="javascript:add(event)">
+				<input id="amount"   placeholder="$"/>
+				<input id="name"     placeholder="name"/>
+				<input id="category" placeholder="category"/>
+				<input type="submit" value="Add"/>
+			</form>	
 
+			<script>
+				function add(event) {
+					event.preventDefault();
+					myFirebaseRef.push({
+							amount: 	$('#amount').val(), 
+							name: 		$('#name').val(), 
+							category: $('#category').val()
+					});
+				}
+			</script>
+			<small>Demo offline capability now</small>
+		</div>
+
+
+
+ 		<div class="ui segment">
+			<div class="summary"></div>
+
+			<script>
+				function groupSummingAmount(expenses) {
+					return _(expenses)
+									.groupBy('category')
+									.map((v,k) => {
+										return {name: k, 
+											      sum_amount: _(v)
+											      						.map((expense) => expense.amount)
+											      						.reduce((a,v) => a + Number(v),0) 
+										};
+									})
+									.sortBy('sum_amount')
+									.value();
+				}
+
+				myFirebaseRef.on('value', function(snap) {
+					const groups = groupSummingAmount(snap.val())
+			  	$('div.summary').html(_.map(groups, (group) => 
+			  		`<div class="ui statistic">
+			  			<div class="value">\$${group.sum_amount}</div> 
+			  			<div class="label">${group.name}</div>`
+			  	));
+			  });			
+			</script>
+		</div>
+
+
+
+
+
+	  <div class="ui segment">
+			
+			<table id="expenses-table" class="ui small table"></table>
+			
+			<script>
+			  
+			  function renderRow(expense) {
+			  	return `<tr>
+			  						<td>\$${expense.amount}</td>
+			  						<td>${expense.name}</td>
+			  					</tr>`;
+			  }
+
+			  function renderRows(expenses) {
+			  	return _.map(expenses, renderRow);
+			  }
+
+			  myFirebaseRef.on('value', function(snap) {
+			  	$('#expenses-table').html( renderRows( snap.val() ) );
+			  });
+
+			</script>
+	  </div>
+
+	</div>
 
 </body>
 </html>
