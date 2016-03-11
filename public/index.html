@@ -59,11 +59,11 @@
         function groupSummingAmount(expenses) {
           return _(expenses)
                   .groupBy('category')
-                  .map((v,k) => {
+                  .map(function(v,k) {
                     return {name: k, 
                             sum_amount: _(v)
-                                        .map((expense) => expense.amount)
-                                        .reduce((a,v) => a + Number(v),0) 
+                                        .map(function(expense) {return expense.amount})
+                                        .reduce(function(a,v) {return a + Number(v)},0) 
                     };
                   })
                   .sortBy('sum_amount')
@@ -72,12 +72,12 @@
 
         myFirebaseRef.on('value', function(snap) {
           const groups = groupSummingAmount(snap.val())
-          $('div.summary').html(_.map(groups, (group) => 
-            `<div class="ui statistic">
+          $('div.summary').html(_.map(groups, function(group) {
+            return `<div class="ui statistic">
               <div class="value">\$${group.sum_amount}</div> 
               <div class="label">${group.name}</div>
              </div>`
-          ));
+          }));
         });     
       </script>
     </div>
